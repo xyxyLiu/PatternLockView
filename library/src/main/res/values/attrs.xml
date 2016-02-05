@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PatternLockView">
+        <attr name="lock_size" format="integer" />
+        <attr name="lock_nodeSize" format="dimension" />
+        <attr name="lock_nodeOnAnim" format="reference" />
+        <attr name="lock_padding" format="dimension" />
+        <attr name="lock_spacing" format="dimension" />
+        <attr name="lock_enableVibrate" format="boolean" />
+        <attr name="lock_vibrateTime" format="integer" />
+        <attr name="lock_nodeSrc" format="color|reference" />
+        <attr name="lock_nodeHighlightSrc" format="color|reference" />
+        <attr name="lock_nodeCorrectSrc" format="color|reference" />
+        <attr name="lock_nodeErrorSrc" format="color|reference" />
+        <attr name="lock_lineColor" format="color" />
+        <attr name="lock_lineWidth" format="dimension" />
+        <attr name="lock_nodeTouchExpand" format="dimension" />
+        <attr name="lock_autoLink" format="boolean" />
+    </declare-styleable>
+</resources>
