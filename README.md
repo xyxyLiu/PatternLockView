@@ -9,7 +9,7 @@ A Simple Pattern Lock View for Android
 * support auto link between two nodes
 * Support `API LEVEL >= 8`
 
-[Download Demo APK](https://github.com/xyxyLiu/PatternLockView/releases/download/1.0/app-debug.apk)
+[Download Demo APK](https://github.com/xyxyLiu/PatternLockView/releases/download/1.0/PatternLockView-Demo-1.0.apk)
 
 # ScreenShot
 ![Screenshot](demo/circle_lock_view.png)
