@@ -2,9 +2,11 @@
 A Simple Pattern Lock View for Android
 
 # Features:
+* simple and easy to use
 * support n * n Pattern
 * two layout mode supported: Identical-Area mode & SpacingPadding mode.
-* support viborate
+* support vibrate
+* support auto link between two nodes
 * Support `API LEVEL >= 8`
 
 [Download Demo APK](https://github.com/xyxyLiu/PatternLockView/releases/download/1.0/app-debug.apk)
@@ -58,7 +60,7 @@ If lock_spacing is given, PatternLockView use lock_nodeSize, lock_spacing and lo
 <div><img src='https://github.com/xyxyLiu/PatternLockView/blob/master/demo/SpacingPaddingMode.png' width="400px" style='border: #f1f1f1 solid 1px'/></div>
 
 * **Identical-Area Mode:**
-If lock_spacing is NOT given, PatternLockView only use nodeSize to layout the view(lock_spacing and lock_padding are ignored). It will devided the whole area into n * n identical area, and layout the node in center as the figure below shows.
+If lock_spacing is NOT given, PatternLockView only use nodeSize to layout the view(lock_spacing and lock_padding are ignored). It will divided the whole area into n * n identical cells, and layout the node in center in each cell as the figure below shows.
 <div><img src='https://github.com/xyxyLiu/PatternLockView/blob/master/demo/Identical-AreaMode.png' width="400px" style='border: #f1f1f1 solid 1px'/></div>
 
 # Handle Callbacks
@@ -90,3 +92,20 @@ mLockView.setOnNodeTouchListener(new PatternLockView.OnNodeTouchListener() {
             }
         });
 ```
+
+
+# License
+
+    Copyright 2016 xyxyLiu
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.

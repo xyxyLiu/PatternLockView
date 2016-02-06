@@ -12,19 +12,20 @@
     <TextView
         android:id="@+id/password_text"
         android:layout_width="wrap_content"
-        android:layout_height="80dp"
-        android:textSize="20dp"
+        android:layout_height="50dp"
+        android:textSize="15dp"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         />
 
     <com.reginald.patternlockview.PatternLockView
         android:id="@+id/lock_view_circle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_gravity="center"
-        android:layout_marginTop="30dp"
         app:lock_size="3"
         app:lock_enableVibrate="true"
         app:lock_vibrateTime="100"
@@ -42,9 +43,9 @@
     <com.reginald.patternlockview.PatternLockView
         android:id="@+id/lock_view_dot"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_gravity="center"
-        android:layout_marginTop="30dp"
         app:lock_size="4"
         app:lock_enableVibrate="true"
         app:lock_vibrateTime="100"

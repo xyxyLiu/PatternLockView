@@ -63,6 +63,7 @@ public class DemoActivity extends Activity {
         mCurLockView.setCallBack(new PatternLockView.CallBack() {
             @Override
             public int onFinish(PatternLockView.Password password) {
+                Log.d(TAG, "password length " + password.list.size());
                 if (password.string.length() != 0) {
                     mPasswordTextView.setText("password is " + password.string);
                 } else {

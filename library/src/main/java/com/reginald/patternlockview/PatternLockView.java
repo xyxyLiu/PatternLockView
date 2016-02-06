@@ -27,24 +27,32 @@ import java.util.List;
  * PatternLockView 支持两种布局模式：
  *
  * 1. Identical-Area mode:
+ *  If lock_spacing is given, PatternLockView use lock_nodeSize, lock_spacing and lock_padding to layout the view.
  * 只设置nodeSize时采用，无视spacing,padding
  * 将界面均分为9等份，每个节点居中显示
+ *
  * 2. Spacing&Padding mode:
+ * If lock_spacing is NOT given, PatternLockView only use nodeSize to layout the view(lock_spacing and lock_padding are ignored).
+ * It will divided the whole area into n * n identical cells, and layout the node in center in each cell
+ *
  * 同时设置nodeSize, spacing时采用，布局规则如下：
  * a.按nodeSize, spacing, padding进行布局，如果空间不足采用b规则；
  * b.保持nodesize大小不变，按比例缩小spacing与padding，如果spacing与padding空间小于0，采用c规则；
  * c.保持spacing与padding，缩小nodesize，如果nodesize小于0，采用d规则；
  * d.采用Identical-Area mode；
+ *
+ * @author xyxyLiu <tonyreginald@gmail.com>
+ * @version 1.0
  */
 public class PatternLockView extends ViewGroup {
     /**
-     * 解锁正确
      * password correct
+     * 解锁正确
      */
     public static final int CODE_PASSWORD_CORRECT = 1;
     /**
-     * 解锁错误
      * password error
+     * 解锁错误
      */
     public static final int CODE_PASSWORD_ERROR = 2;
 
@@ -74,7 +82,7 @@ public class PatternLockView extends ViewGroup {
     private float mLineWidth;
 
     private float mNodeSize; // 节点大小，必须大于0
-    private boolean mIsSameAreaSize = true; // 在Identical-Area模式下，是否保持area一致
+    private boolean mIsSquareArea = true; // 在Identical-Area模式下，是否保持area一致
     private float mPadding; // 9宫格内边距
     private float mSpacing; // 每个节点间隔距离
     private float mMeasuredPadding;
@@ -314,8 +322,8 @@ public class PatternLockView extends ViewGroup {
             float areaSize = areaWidth < areaHeight ? areaWidth : areaHeight;
             float widthPadding = 0f;
             float heightPadding = 0f;
-            // 是否需要让每个area保持同样大小
-            if (mIsSameAreaSize) {
+            // whether to keep each cell as square (width = height)
+            if (mIsSquareArea) {
                 areaWidth = areaSize;
                 areaHeight = areaSize;
                 widthPadding = (width - mSize * areaSize) / 2;
@@ -330,7 +338,6 @@ public class PatternLockView extends ViewGroup {
                 NodeView node = (NodeView) getChildAt(n);
                 int row = n / mSize;
                 int col = n % mSize;
-                // 计算实际的坐标
                 int l = (int) (widthPadding + col * areaWidth + (areaWidth - node.getMeasuredWidth()) / 2);
                 int t = (int) (heightPadding + row * areaHeight + (areaHeight - node.getMeasuredHeight()) / 2);
                 int r = (int) (l + node.getMeasuredWidth());
@@ -348,7 +355,6 @@ public class PatternLockView extends ViewGroup {
                 NodeView node = (NodeView) getChildAt(n);
                 int row = n / mSize;
                 int col = n % mSize;
-                // 计算实际的坐标，要包括内边距和分割边距
                 int l = (int) (widthPadding + col * (nodeSize + mMeasuredSpacing));
                 int t = (int) (heightPadding + row * (nodeSize + mMeasuredSpacing));
                 int r = (int) (l + nodeSize);
@@ -370,7 +376,7 @@ public class PatternLockView extends ViewGroup {
                     mFinishAction.run();
                 }
             case MotionEvent.ACTION_MOVE:
-                mPositionX = event.getX(); // 这里要实时记录手指的坐标
+                mPositionX = event.getX();
                 mPositionY = event.getY();
                 NodeView nodeAt = getNodeAt(mPositionX, mPositionY);
 
@@ -453,6 +459,7 @@ public class PatternLockView extends ViewGroup {
     }
 
     /**
+     * auto link the nodes between first and second
      * 检测两个节点间的中间检点是否未连接，否则按顺序连接。
      * @param first
      * @param second
@@ -510,9 +517,6 @@ public class PatternLockView extends ViewGroup {
         addNodeToList(mid);
     }
 
-    /**
-     * 系统绘制回调-主要绘制连线
-     */
     @Override
     protected void onDraw(Canvas canvas) {
         for (int i = 0; i < mNodeList.size() - 1; i++) {
@@ -525,9 +529,6 @@ public class PatternLockView extends ViewGroup {
         }
     }
 
-    /**
-     * 获取给定坐标点的Node，返回null表示当前手指在两个Node之间
-     */
     private NodeView getNodeAt(float x, float y) {
         for (int n = 0; n < getChildCount(); n++) {
             NodeView node = (NodeView) getChildAt(n);
@@ -543,6 +544,7 @@ public class PatternLockView extends ViewGroup {
     }
 
     /**
+     * Callback to handle pattern input complete event
      * 密码处理返回接口
      */
     public interface CallBack {
@@ -557,15 +559,14 @@ public class PatternLockView extends ViewGroup {
     }
 
     /**
-     * 结果回调监听器接口
+     * Callback to handle node touch event
+     * 节点点击回调监听器接口
      */
     public interface OnNodeTouchListener {
         void onNodeTouched(int NodeId);
     }
 
-    /**
-     * 节点描述类
-     */
+
     private class NodeView extends View {
 
         public static final int STATE_NORMAL = 0;
@@ -663,15 +664,15 @@ public class PatternLockView extends ViewGroup {
     }
 
     public static class Password{
-        public List<Integer> nodeList;
+        public List<Integer> list;
         public String string;
 
         public Password(List<NodeView> nodeViewList){
-            nodeList = new ArrayList<>();
+            list = new ArrayList<>();
             StringBuilder passwordBuilder = new StringBuilder("[");
             for (int i = 0; i < nodeViewList.size(); i++) {
                 int id = nodeViewList.get(i).getNodeId();
-                nodeList.add(id);
+                list.add(id);
                 if (i != 0) {
                     passwordBuilder.append("-");
                 }
