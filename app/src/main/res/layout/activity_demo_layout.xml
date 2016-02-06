@@ -41,6 +41,7 @@
         app:lock_lineColor="#b2ffffff"
         app:lock_lineWidth="8dp"
         app:lock_nodeSize="10dp"
+        app:lock_spacing="90dp"
         app:lock_padding="20dp"
         app:lock_nodeTouchExpand="15dp"
         app:lock_nodeSrc="@drawable/pattern_lock_dot_node_normal"
