@@ -7,6 +7,8 @@ A Simple Pattern Lock View for Android
 * support viborate
 * Support `API LEVEL >= 8`
 
+[Download Demo APK](https://github.com/xyxyLiu/PatternLockView/releases/download/1.0/app-debug.apk)
+
 # ScreenShot
 ![Screenshot](demo/circle_lock_view.png)
 ![Screenshot](demo/dot_lock_view.png)
