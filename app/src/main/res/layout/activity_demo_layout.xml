@@ -10,32 +10,42 @@
     tools:context="com.reginald.patternlockview.DemoActivity">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="30dp"
-        android:text="PatternLockView"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        />
-
-    <TextView
         android:id="@+id/password_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:textSize="20dp"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         />
 
     <com.reginald.patternlockview.PatternLockView
-        android:id="@+id/lock_view"
+        android:id="@+id/lock_view_circle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="30dp"
         app:lock_size="3"
+        app:lock_enableVibrate="true"
+        app:lock_vibrateTime="100"
+        app:lock_lineColor="#b2ffffff"
+        app:lock_lineWidth="8dp"
+        app:lock_nodeSize="40dp"
+        app:lock_padding="20dp"
+        app:lock_nodeTouchExpand="15dp"
+        app:lock_nodeSrc="@drawable/pattern_lock_circle_node_normal"
+        app:lock_nodeHighlightSrc="@drawable/pattern_lock_circle_node_highlighted"
+        app:lock_nodeOnAnim="@anim/pattern_lock_node_anim_larger"
+        app:lock_autoLink="true"
+        />
+
+    <com.reginald.patternlockview.PatternLockView
+        android:id="@+id/lock_view_dot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        app:lock_size="4"
         app:lock_enableVibrate="true"
         app:lock_vibrateTime="100"
         app:lock_lineColor="#b2ffffff"
@@ -47,7 +57,17 @@
         app:lock_nodeSrc="@drawable/pattern_lock_dot_node_normal"
         app:lock_nodeHighlightSrc="@drawable/pattern_lock_dot_node_highlighted"
         app:lock_nodeOnAnim="@anim/pattern_lock_node_anim_larger"
-        app:lock_autoLink="false"
+        app:lock_autoLink="true"
+        />
+
+    <Button
+        android:id="@+id/switch_but"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"
         />
 
 </LinearLayout>

@@ -277,7 +277,8 @@ public class PatternLockView extends ViewGroup {
             Log.v(TAG, String.format("measured nodeSize = %f)", nodesize));
         }
 
-        setMeasuredDimension(width, height);
+        int minViewSize = width < height ? width : height;
+        setMeasuredDimension(minViewSize, minViewSize);
 
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
