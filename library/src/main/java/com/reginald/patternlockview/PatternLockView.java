@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -165,8 +166,9 @@ public class PatternLockView extends ViewGroup {
         mNodeSize = a.getDimension(R.styleable.PatternLockView_lock_nodeSize, 0);
         mNodeAreaExpand = a.getDimension(R.styleable.PatternLockView_lock_nodeTouchExpand, 0);
         mNodeOnAnim = a.getResourceId(R.styleable.PatternLockView_lock_nodeOnAnim, 0);
-        mLineColor = a.getColor(R.styleable.PatternLockView_lock_lineColor, Color.argb(0, 0, 0, 0));
-        mLineWidth = a.getDimension(R.styleable.PatternLockView_lock_lineWidth, 0);
+        mLineColor = a.getColor(R.styleable.PatternLockView_lock_lineColor, Color.argb(0xb2, 0xff, 0xff, 0xff));
+        mLineWidth = a.getDimension(R.styleable.PatternLockView_lock_lineWidth, (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()));
         mPadding = a.getDimension(R.styleable.PatternLockView_lock_padding, 0);
         mSpacing = a.getDimension(R.styleable.PatternLockView_lock_spacing, -1);
         mIsAutoLink = a.getBoolean(R.styleable.PatternLockView_lock_autoLink, false);
@@ -204,8 +206,10 @@ public class PatternLockView extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         boolean needRemeasure = false;
-        int width = measureSize(widthMeasureSpec);
-        int height = measureSize(heightMeasureSpec);
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = MeasureSpec.getSize(heightMeasureSpec);
         int gaps = mSize - 1;
         float nodesize = mNodeSize;
         mMeasuredPadding = mPadding;
@@ -285,26 +289,19 @@ public class PatternLockView extends ViewGroup {
             Log.v(TAG, String.format("measured nodeSize = %f)", nodesize));
         }
 
-        int minViewSize = width < height ? width : height;
-        setMeasuredDimension(minViewSize, minViewSize);
+        if (width > height && widthMode == MeasureSpec.AT_MOST) {
+            width = height;
+        } else if (width < height && heightMode == MeasureSpec.AT_MOST) {
+            height = width;
+        }
+
+        setMeasuredDimension(width, height);
 
         for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             int widthSpec = MeasureSpec.makeMeasureSpec((int) nodesize, MeasureSpec.EXACTLY);
             int heightSpec = MeasureSpec.makeMeasureSpec((int) nodesize, MeasureSpec.EXACTLY);
             v.measure(widthSpec, heightSpec);
-        }
-    }
-
-    private int measureSize(int measureSpec) {
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
-        switch (specMode) {
-            case MeasureSpec.EXACTLY:
-            case MeasureSpec.AT_MOST:
-                return specSize;
-            default:
-                return 0;
         }
     }
 
