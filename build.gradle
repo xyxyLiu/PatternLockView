@@ -12,11 +12,11 @@ buildscript {
     }
 }
 
+// setup the configs here
 ext {
-    compileSdkVersion = 22
+    compileSdkVersion = 23
     buildToolsVersion = "22.0.1"
     minSdkVersion = 9
-
     DEBUG_LOG = "true"
 }
 
