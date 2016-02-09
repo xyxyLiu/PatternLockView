@@ -10,6 +10,8 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -60,6 +62,7 @@ public class PatternLockView extends ViewGroup {
     private static final String TAG = "PatternLockView";
     private static final boolean DEBUG = BuildConfig.DEBUG_LOG;
 
+    // attributes that can be configured with code (non-persistent)
     private boolean mIsTouchEnabled = true;
     private long mFinishTimeout = 1000;
     private boolean mIsFinishInterruptable = true;
@@ -141,18 +144,57 @@ public class PatternLockView extends ViewGroup {
         mIsTouchEnabled = isEnabled;
     }
 
+    /**
+     * time delayed of the lock view resetting after user finish input password
+     * @param timeout
+     */
     public void setFinishTimeout(long timeout) {
         if (timeout < 0)
             timeout = 0;
         mFinishTimeout = timeout;
     }
 
+    /**
+     * whether user can start a new password input in the period of FinishTimeout
+     * @see #setFinishTimeout(long)
+     * @param isInterruptable if true, the lock view will be reset when user touch a new node.
+     *                        if false, the lock view will be reset only when the finish timeout expires
+     */
     public void setFinishInterruptable(boolean isInterruptable) {
         mIsFinishInterruptable = isInterruptable;
     }
 
-    public void setIsMidCheckEnabled(boolean isEnabled) {
+    /**
+     * whether the nodes in the path of two selected nodes will be automatic linked
+     * @param isEnabled
+     */
+    public void setAutoLinkEnabled(boolean isEnabled) {
         mIsAutoLink = isEnabled;
+    }
+
+    public void setSize(int size) {
+        mSize = size;
+        setupNodes(size);
+    }
+
+    /**
+     * reset the view, reset nodes states and clear all lines.
+     */
+    public void reset() {
+        mNodeList.clear();
+        currentNode = null;
+
+        for (int n = 0; n < getChildCount(); n++) {
+            NodeView node = (NodeView) getChildAt(n);
+            node.setState(NodeView.STATE_NORMAL);
+        }
+
+        mPaint.setStyle(Style.STROKE);
+        mPaint.setStrokeWidth(mLineWidth);
+        mPaint.setColor(mLineColor);
+        mPaint.setAntiAlias(true);
+
+        invalidate();
     }
 
     private void initFromAttributes(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -192,14 +234,8 @@ public class PatternLockView extends ViewGroup {
         mPaint.setColor(mLineColor);
         mPaint.setAntiAlias(true);
 
-        // 构建node
-        for (int n = 0; n < mSize * mSize; n++) {
-            NodeView node = new NodeView(getContext(), n);
-            if (mNodeOnAnim != 0) {
-                node.setNodeOnAnim(AnimationUtils.loadAnimation(getContext(), mNodeOnAnim));
-            }
-            addView(node);
-        }
+        setupNodes(mSize);
+
         setWillNotDraw(false);
     }
 
@@ -267,7 +303,7 @@ public class PatternLockView extends ViewGroup {
         }
 
         // Identical-Area mode:
-        // if no spacing is provided, divide the layout into 9 identical area for each node
+        // if no spacing is provided, divide the whole area into 9 identical area for each node
         if (needRemeasure || mSpacing < 0) {
             mMeasuredSpacing = -1;
             nodesize = mNodeSize;
@@ -363,8 +399,9 @@ public class PatternLockView extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!mIsTouchEnabled)
+        if (!mIsTouchEnabled || !isEnabled()) {
             return true;
+        }
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -425,6 +462,14 @@ public class PatternLockView extends ViewGroup {
         return true;
     }
 
+    private void setupNodes(int size){
+        removeAllViews();
+        for (int n = 0; n < size * size; n++) {
+            NodeView node = new NodeView(getContext(), n);
+            addView(node);
+        }
+    }
+
     private void setFinishState(int state) {
         for (NodeView nodeView : mNodeList) {
             nodeView.setState(state);
@@ -436,23 +481,6 @@ public class PatternLockView extends ViewGroup {
         if (mOnNodeTouchListener != null) {
             mOnNodeTouchListener.onNodeTouched(nodeView.getNodeId());
         }
-    }
-
-    public void reset() {
-        mNodeList.clear();
-        currentNode = null;
-
-        for (int n = 0; n < getChildCount(); n++) {
-            NodeView node = (NodeView) getChildAt(n);
-            node.setState(NodeView.STATE_NORMAL);
-        }
-
-        mPaint.setStyle(Style.STROKE);
-        mPaint.setStrokeWidth(mLineWidth);
-        mPaint.setColor(mLineColor);
-        mPaint.setAntiAlias(true);
-
-        invalidate();
     }
 
     /**
@@ -563,7 +591,6 @@ public class PatternLockView extends ViewGroup {
         void onNodeTouched(int NodeId);
     }
 
-
     private class NodeView extends View {
 
         public static final int STATE_NORMAL = 0;
@@ -573,16 +600,11 @@ public class PatternLockView extends ViewGroup {
 
         private int mId;
         private int mState = STATE_NORMAL;
-        private Animation mNodeAnimation;
 
         public NodeView(Context context, int num) {
             super(context);
             this.mId = num;
             setBackgroundDrawable(mNodeSrc);
-        }
-
-        public void setNodeOnAnim(Animation animation) {
-            mNodeAnimation = animation;
         }
 
         public boolean isHighLighted() {
@@ -604,8 +626,8 @@ public class PatternLockView extends ViewGroup {
                     if (mNodeHighlightSrc != null) {
                         setBackgroundDrawable(mNodeHighlightSrc);
                     }
-                    if (mNodeAnimation != null) {
-                        startAnimation(mNodeAnimation);
+                    if (mNodeOnAnim != 0) {
+                        startAnimation(AnimationUtils.loadAnimation(getContext(), mNodeOnAnim));
                     }
 
                     if (mEnableVibrate) {

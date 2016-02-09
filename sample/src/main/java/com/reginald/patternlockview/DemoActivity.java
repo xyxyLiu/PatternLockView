@@ -47,6 +47,22 @@ public class DemoActivity extends Activity {
     private void switchLockViews() {
         mCurLockView = mCurLockView == mCircleLockView ? mDotLockView : mCircleLockView;
         mCurLockView.setVisibility(View.VISIBLE);
+
+        /*
+        // config the PatternLockView with code
+
+        // set size
+        mCurLockView.setSize(5);
+        // set finish timeout, if 0, reset the lock view immediately after user input one password
+        mCircleLockView.setFinishTimeout(2000);
+        // set whether user can interrupt the finish timeout.
+        // if true, the lock view will be reset when user touch a new node.
+        // if false, the lock view will be reset only when the finish timeout expires
+        mCircleLockView.setFinishInterruptable(false);
+        // set whether the lock view can auto link the nodes in the path of two selected nodes
+        mCircleLockView.setAutoLinkEnabled(false);
+        */
+
         mCurLockView.reset();
         if (mCurLockView != mCircleLockView) {
             mCircleLockView.setVisibility(View.GONE);
