@@ -12,8 +12,8 @@ A Light-weight Pattern Lock View for Android
 [Download Demo APK](https://github.com/xyxyLiu/PatternLockView/releases/download/1.0/PatternLockView-Demo-1.0.apk)
 
 ## ScreenShot
-![Screenshot](demo/circle_lock_view.png)
-![Screenshot](demo/dot_lock_view.png)
+![Screenshot](art/circle_lock_view.png)
+![Screenshot](art/dot_lock_view.png)
 
 ## How to use
 ```xml
@@ -60,11 +60,11 @@ properties:
 ## Layout Mode:
 * **SpacingPadding Mode:**
 If lock_spacing is given, PatternLockView use lock_nodeSize, lock_spacing and lock_padding to layout the view as the figure below shows.
-<div><img src='https://github.com/xyxyLiu/PatternLockView/blob/master/demo/SpacingPaddingMode.png' width="400px" style='border: #f1f1f1 solid 1px'/></div>
+<div><img src='https://github.com/xyxyLiu/PatternLockView/blob/master/art/SpacingPaddingMode.png' width="400px" style='border: #f1f1f1 solid 1px'/></div>
 
 * **Identical-Area Mode:**
 If lock_spacing is NOT given, PatternLockView only use nodeSize to layout the view(lock_spacing and lock_padding are ignored). It will divided the whole area into n * n identical cells, and layout the node in center in each cell as the figure below shows.
-<div><img src='https://github.com/xyxyLiu/PatternLockView/blob/master/demo/Identical-AreaMode.png' width="400px" style='border: #f1f1f1 solid 1px'/></div>
+<div><img src='https://github.com/xyxyLiu/PatternLockView/blob/master/art/Identical-AreaMode.png' width="400px" style='border: #f1f1f1 solid 1px'/></div>
 
 ## Handle Callbacks
 * **Handle password result:**
