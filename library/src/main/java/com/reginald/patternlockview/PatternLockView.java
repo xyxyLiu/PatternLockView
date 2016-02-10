@@ -10,8 +10,6 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -19,7 +17,6 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import java.util.ArrayList;
@@ -112,13 +109,11 @@ public class PatternLockView extends ViewGroup {
     };
 
     public PatternLockView(Context context) {
-        super(context);
-        initFromAttributes(context, null, 0);
+        this(context, null);
     }
 
     public PatternLockView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initFromAttributes(context, attrs, 0);
+        this(context, attrs, 0);
     }
 
     public PatternLockView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -683,15 +678,24 @@ public class PatternLockView extends ViewGroup {
     }
 
     public static class Password{
-        public List<Integer> list;
-        public String string;
+        public final List<Integer> list;
+        public final String string;
 
         public Password(List<NodeView> nodeViewList){
+            // build password id list
             list = new ArrayList<>();
+            for (NodeView node : nodeViewList) {
+                list.add(node.getNodeId());
+            }
+
+            // build password string
+            string = buildPasswordString(nodeViewList);
+        }
+
+        protected String buildPasswordString(List<NodeView> nodeViewList) {
             StringBuilder passwordBuilder = new StringBuilder("[");
             for (int i = 0; i < nodeViewList.size(); i++) {
                 int id = nodeViewList.get(i).getNodeId();
-                list.add(id);
                 if (i != 0) {
                     passwordBuilder.append("-");
                 }
@@ -699,7 +703,7 @@ public class PatternLockView extends ViewGroup {
 
             }
             passwordBuilder.append("]");
-            string = passwordBuilder.toString();
+            return passwordBuilder.toString();
         }
     }
 
