@@ -519,8 +519,9 @@ public class PatternLockView extends ViewGroup {
                 if (DEBUG) {
                     Log.d(TAG, String.format("xdiff = %d, ydiff = %f, ydiff == (int)ydiff? %b", xdiff, ydiff, (ydiff == (int) ydiff)));
                 }
-                if (ydiff == (int) ydiff) {
-                    tryAppendMidNode(first.getRow() + (int) ydiff, first.getColumn() + xdiff);
+                if (Math.abs(ydiff - Math.round(ydiff)) < 1e-6) {
+                    tryAppendMidNode(first.getRow() + Math.round(ydiff), first.getColumn() + xdiff);
+                    break;
                 }
             }
         }
