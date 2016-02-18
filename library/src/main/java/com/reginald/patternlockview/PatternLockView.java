@@ -512,15 +512,16 @@ public class PatternLockView extends ViewGroup {
             if (DEBUG) {
                 Log.d(TAG, String.format("tan = %f, xstep = %d", tan, xstep));
             }
-            int xdiff = 0;
-            float ydiff = 0f;
-            while ((xdiff += xstep) != xDiff) {
-                ydiff = xdiff * tan;
+            int xDelta = 0;
+            float yDelta = 0f;
+            while ((xDelta += xstep) != xDiff) {
+                yDelta = xDelta * tan;
+                int yDeltaRounded = Math.round(yDelta);
                 if (DEBUG) {
-                    Log.d(TAG, String.format("xdiff = %d, ydiff = %f, ydiff == (int)ydiff? %b", xdiff, ydiff, (ydiff == (int) ydiff)));
+                    Log.d(TAG, String.format("xDelta = %d, yDelta = %f", xDelta, yDelta));
                 }
-                if (Math.abs(ydiff - Math.round(ydiff)) < 1e-6) {
-                    tryAppendMidNode(first.getRow() + Math.round(ydiff), first.getColumn() + xdiff);
+                if (Math.abs(yDelta - yDeltaRounded) < 1e-6) {
+                    tryAppendMidNode(first.getRow() + yDeltaRounded, first.getColumn() + xDelta);
                     break;
                 }
             }
