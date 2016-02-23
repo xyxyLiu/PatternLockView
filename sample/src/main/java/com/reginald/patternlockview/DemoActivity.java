@@ -1,10 +1,14 @@
 package com.reginald.patternlockview;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewParent;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.reginald.patternlockview.demo.R;
@@ -42,6 +46,74 @@ public class DemoActivity extends Activity {
         });
         mPasswordTextView.setText("please enter your password!");
         switchLockViews();
+
+        test();
+    }
+
+    private void showIEEE745(float num) {
+        String ieee754 = Integer.toBinaryString(Float.floatToRawIntBits(num));
+        while (ieee754.length() < 32) {
+            ieee754 = "0" + ieee754;
+        }
+        Log.d(TAG,String.format(" float %.20f: sign = %s, exponent = %s, fraction = %s", num, ieee754.substring(0,1), ieee754.substring(1,9), ieee754.substring(9,ieee754.length())));
+    }
+
+    private void test(){
+
+//        float a = 5f;
+//        float b = 3f;
+//        float c = a / b;
+//        float s = 1.66666662693f * b;
+//        showIEEE745(c);
+//        showIEEE745(b);
+//        showIEEE745(s);
+//        Log.d(TAG, String.format(" a = %.23f , c = %.23f, int = %d, s = %.23f(%d), s==(int)s = %b", a, c, (int)c, s, (int)s, s==(int)s)); //13421773 / 134217728
+//
+//
+//        float   f = 1.0000001f;
+//        Log.d(TAG, String.format("%.23f * 10f = %.23f", f , f * 10f) );
+//
+//                f = 0.01f + 0.01f;
+//        Log.d(TAG, String.format("%.23f * 10f = %.23f", f , f * 100f) );
+//
+//                f = 1.000000001f;
+//        Log.d(TAG, String.format("%.23f * 10f = %.23f", f , f * 10f) );
+//
+//                f = 1.0000000001f;
+//        Log.d(TAG, String.format("%.23f * 10f = %.23f", f , f * 10f) );
+
+        Dialog dialog = new Dialog(getApplicationContext());
+        TextView textView = new TextView(this);
+        textView.setText("hello");
+        textView.setTextSize(40);
+        dialog.setContentView(new TextView(this));
+//        dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
+        dialog.show();
+
+//        View decor = dialog.getWindow().getDecorView();
+//        ViewParent root = decor.getParent();
+//        Log.d(TAG, String.format("dialog decor = %s, decor.parent = %s", decor, root));
+//        dialog.dismiss();
+//
+//
+//        mPasswordTextView.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                PopupWindow popupWindow = new PopupWindow(DemoActivity.this);
+//                TextView textView = new TextView(DemoActivity.this);
+//                textView.setText("hello");
+//                textView.setTextSize(40);
+//                popupWindow.setContentView(new TextView(DemoActivity.this));
+//                popupWindow.showAsDropDown(mPasswordTextView);
+//
+//                View decor = popupWindow.getContentView().getRootView();
+//                ViewParent root = decor.getParent();
+//
+//                Log.d(TAG, String.format("popupWindow decor = %s, decor.parent = %s", decor, root));
+////        popupWindow.dismiss();
+//            }
+//        });
+
     }
 
     private void switchLockViews() {
