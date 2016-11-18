@@ -20,6 +20,7 @@
         android:layout_marginBottom="10dp"
         />
 
+    <!-- app:lock_spacing is NOT given, it applies Identical-Area mode -->
     <com.reginald.patternlockview.PatternLockView
         android:id="@+id/lock_view_circle"
         android:layout_width="match_parent"
@@ -32,7 +33,6 @@
         app:lock_lineColor="#a2ffffff"
         app:lock_lineWidth="8dp"
         app:lock_nodeSize="40dp"
-        app:lock_padding="20dp"
         app:lock_nodeTouchExpand="15dp"
         app:lock_nodeSrc="@drawable/pattern_lock_circle_node_normal"
         app:lock_nodeHighlightSrc="@drawable/pattern_lock_circle_node_highlighted"
@@ -40,11 +40,11 @@
         app:lock_autoLink="true"
         />
 
+    <!-- app:lock_spacing is given, it applies SpacingPadding mode -->
     <com.reginald.patternlockview.PatternLockView
         android:id="@+id/lock_view_dot"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:lock_size="4"
         app:lock_enableVibrate="true"
@@ -52,8 +52,8 @@
         app:lock_lineColor="#b2ffffff"
         app:lock_lineWidth="5dp"
         app:lock_nodeSize="10dp"
-        app:lock_spacing="90dp"
-        app:lock_padding="20dp"
+        app:lock_spacing="60dp"
+        app:lock_padding="30dp"
         app:lock_nodeTouchExpand="15dp"
         app:lock_nodeSrc="@drawable/pattern_lock_dot_node_normal"
         app:lock_nodeHighlightSrc="@drawable/pattern_lock_dot_node_highlighted"

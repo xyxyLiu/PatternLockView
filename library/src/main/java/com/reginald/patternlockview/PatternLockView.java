@@ -284,6 +284,14 @@ public class PatternLockView extends ViewGroup {
                 } else { // otherwise shrink nodesize & keep paddings and spacing
                     nodesize = maxNodeSize;
                 }
+            } else {
+                if (!isMeasureModeExactly(widthMode)) {
+                    width = (int) (mPadding * 2 + mSpacing * gaps + mSize * nodesize);
+                }
+
+                if (!isMeasureModeExactly(heightMode)) {
+                    height = (int) (mPadding * 2 + mSpacing * gaps + mSize * nodesize);
+                }
             }
 
 
@@ -320,9 +328,9 @@ public class PatternLockView extends ViewGroup {
             Log.v(TAG, String.format("measured nodeSize = %f)", nodesize));
         }
 
-        if (width > height && widthMode == MeasureSpec.AT_MOST) {
+        if (width > height && !isMeasureModeExactly(widthMode)) {
             width = height;
-        } else if (width < height && heightMode == MeasureSpec.AT_MOST) {
+        } else if (width < height && !isMeasureModeExactly(heightMode)) {
             height = width;
         }
 
@@ -563,6 +571,10 @@ public class PatternLockView extends ViewGroup {
             return node;
         }
         return null;
+    }
+
+    private boolean isMeasureModeExactly(int measureMode) {
+        return measureMode == MeasureSpec.EXACTLY;
     }
 
     /**
