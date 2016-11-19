@@ -43,19 +43,19 @@ properties:
 |:-----------:	|:---------:	|:----------------------------------------------------:	|
 |  lock_nodeSize  	|   required    | the size of the node  	|
 |   lock_size   	|     optional, default is 3     	|         n, where it's an n * n lock view.        	|
-| lock_enableVibrate 	| optional, default is false 	|          enable vibration when one node is linked          	|
+| lock_enableVibrate 	| optional, default is false 	|          enable vibration when a node is linked          	|
 | lock_vibrateTime      | optional, default is 20ms 	|          time the vibration lasting                     	|
-|   lock_lineWidth 	|     optional, default is 5dp     	|         the width of the link line between nodes         	|
-|   lock_lineColor  	|     optional, default is #FFFFFF     	|         the color of the link line between nodes         	|
+|   lock_lineWidth 	|     optional, default is 5dp     	|         the width of the link line        	|
+|   lock_lineColor  	|     optional, default is #FFFFFF     	|         the color of the link line         	|
 |  lock_spacing  	| if given, SpacingPadding Mode is applied,otherwise, Identical-Area Mode is applied       | the spacing between adjacent nodes 	|
 |  lock_padding  	| optional, default is 0       | the padding of the lockview 	|
 |  lock_nodeTouchExpand  	| optional, default is 0       | the expanded area of the node which receive touch action. 	|
-|  lock_nodeSrc  	| required       | The color of the path that is following the pointer. 	|
-|  lock_nodeHighlightSrc  	| optional, default is null       | the resource id the node when it's in highlighted state, e.g. node is linked. 	|
-|  lock_nodeCorrectSrc  	| optional, default is null       | the resource id the node when it's in correct state, e.g. password correct. 	|
-|  lock_nodeErrorSrc  	| optional, default is null       | the resource id the node when it's in error state, e.g. password error. 	|
+|  lock_nodeSrc  	| required       | the resource id of the node 	|
+|  lock_nodeHighlightSrc  	| optional, default is null       | the resource id of the node when it's in highlighted state, e.g. node is linked. 	|
+|  lock_nodeCorrectSrc  	| optional, default is null       | the resource id of the node when it's in correct state, e.g. password correct. 	|
+|  lock_nodeErrorSrc  	| optional, default is null       | the resource id of the node when it's in error state, e.g. password error. 	|
 |  lock_nodeOnAnim  	| optional, default is null       | the animation played when the node is linked. 	|
-|  lock_autolink  	| optional, default is false       | whether to automatic link the nodes in the path of two selected nodes. 	|
+|  lock_autolink  	| optional, default is false       | whether to automatic link the nodes in the path of two linked nodes. 	|
 
 ## Layout Mode:
 * **SpacingPadding Mode:**
@@ -63,7 +63,7 @@ If lock_spacing is given, PatternLockView use lock_nodeSize, lock_spacing and lo
 <div><img src='https://github.com/xyxyLiu/PatternLockView/blob/master/art/SpacingPaddingMode.png' width="400px" style='border: #f1f1f1 solid 1px'/></div>
 
 * **Identical-Area Mode:**
-If lock_spacing is NOT given, PatternLockView only use nodeSize to layout the view(lock_spacing and lock_padding are ignored). It will divided the whole area into n * n identical cells, and layout the node in center in each cell as the figure below shows.
+If lock_spacing is NOT given, PatternLockView only use nodeSize to layout the view(lock_spacing and lock_padding are ignored). It will divided the whole area into n * n identical cells, and layout the node in the center of each cell as the figure below shows.
 <div><img src='https://github.com/xyxyLiu/PatternLockView/blob/master/art/Identical-AreaMode.png' width="400px" style='border: #f1f1f1 solid 1px'/></div>
 
 ## Handle Callbacks

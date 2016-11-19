@@ -26,22 +26,31 @@ import java.util.List;
  * PatternLockView support two layout mode:
  * PatternLockView 支持两种布局模式：
  *
- * 1. Identical-Area mode:
+ * 1. SpacingPadding mode:
  *  If lock_spacing is given, PatternLockView use lock_nodeSize, lock_spacing and lock_padding to layout the view.
- * 只设置nodeSize时采用，无视spacing,padding
- * 将界面均分为9等份，每个节点居中显示
+ *  Detail Rules:
+ *  a. Use exactly lock_nodeSize, spacing and lock_padding to layout. If insufficient space, try b.
+ *  b. Keep lock_nodeSize, reduce lock_spacing and lock_padding with equal proportion. If insufficient space, try c.
+ *  c. Keep lock_spacing and lock_padding, reduce lock_nodeSize. If insufficient space, try d.
+ *  d. Apply Identical-Area mode.
  *
- * 2. Spacing&Padding mode:
- * If lock_spacing is NOT given, PatternLockView only use nodeSize to layout the view(lock_spacing and lock_padding are ignored).
- * It will divided the whole area into n * n identical cells, and layout the node in center in each cell
+ *  如果设置了lock_spacing时，PatternLockView会使用lock_nodeSize, lock_spacing, lock_padding去布局
+ *  具体布局规则如下：
+ *  a.精确按照lock_nodeSize, lock_spacing, lock_padding去布局进行布局，如果空间不足采用b规则；
+ *  b.保持lock_nodeSize大小不变，按比例缩小lock_spacing与lock_padding去布局，如果spacing与padding空间小于0，采用c规则；
+ *  c.保持lock_spacing与lock_padding，缩小lock_nodeSize，如果lock_nodeSize小于0，采用d规则；
+ *  d.采用Identical-Area mode；
  *
- * 同时设置nodeSize, spacing时采用，布局规则如下：
- * a.按nodeSize, spacing, padding进行布局，如果空间不足采用b规则；
- * b.保持nodesize大小不变，按比例缩小spacing与padding，如果spacing与padding空间小于0，采用c规则；
- * c.保持spacing与padding，缩小nodesize，如果nodesize小于0，采用d规则；
- * d.采用Identical-Area mode；
+ * 2. Identical-Area mode:
+ *  If lock_spacing is NOT given, PatternLockView only use lock_nodeSize to layout the view(lock_spacing and lock_padding are ignored).
+ *  It divides the whole area into n * n identical cells, and layout the node in the center of each cell
  *
- * @author xyxyLiu <tonyreginald@gmail.com>
+ *  如果未设置lock_spacing时，PatternLockView将只使用lock_nodeSize，而无视lock_spacing与lock_padding去布局。
+ *  其会将空间等分为n * n个空间，并将节点居中放置
+ *
+
+ *
+ * @author xyxyLiu
  * @version 1.0
  */
 public class PatternLockView extends ViewGroup {
@@ -66,9 +75,9 @@ public class PatternLockView extends ViewGroup {
     private boolean mIsAutoLink;
 
     private List<NodeView> mNodeList = new ArrayList<>();
-    private NodeView currentNode; // 最近一个点亮的节点，null表示还没有点亮任何节点
-    private float mPositionX; // 当前手指坐标x
-    private float mPositionY; // 当前手指坐标y
+    private NodeView currentNode;
+    private float mPositionX;
+    private float mPositionY;
 
     private Drawable mNodeSrc;
     private Drawable mNodeHighlightSrc;
@@ -77,15 +86,16 @@ public class PatternLockView extends ViewGroup {
 
     private int mSize;
 
-    private float mNodeAreaExpand; // 对节点的触摸区域进行扩展
-    private int mNodeOnAnim; // 节点点亮时的动画
+    private float mNodeAreaExpand;
+    private int mNodeOnAnim;
     private int mLineColor;
     private float mLineWidth;
 
-    private float mNodeSize; // 节点大小，必须大于0
-    private boolean mIsSquareArea = true; // 在Identical-Area模式下，是否保持area一致
-    private float mPadding; // 9宫格内边距
-    private float mSpacing; // 每个节点间隔距离
+    private float mNodeSize;
+    // only used in Identical-Area mode, whether to keep each square
+    private boolean mIsSquareArea = true;
+    private float mPadding;
+    private float mSpacing;
     private float mMeasuredPadding;
     private float mMeasuredSpacing;
 
@@ -141,7 +151,7 @@ public class PatternLockView extends ViewGroup {
 
     /**
      * time delayed of the lock view resetting after user finish input password
-     * @param timeout
+     * @param timeout timeout
      */
     public void setFinishTimeout(long timeout) {
         if (timeout < 0)
@@ -161,7 +171,7 @@ public class PatternLockView extends ViewGroup {
 
     /**
      * whether the nodes in the path of two selected nodes will be automatic linked
-     * @param isEnabled
+     * @param isEnabled enabled
      */
     public void setAutoLinkEnabled(boolean isEnabled) {
         mIsAutoLink = isEnabled;
@@ -583,9 +593,9 @@ public class PatternLockView extends ViewGroup {
      */
     public interface CallBack {
         /**
-         * @param password
+         * @param password password
          * @see com.reginald.patternlockview.PatternLockView.Password
-         * @return 解锁结果返回值：
+         * @return return value 解锁结果返回值：
          * {@link #CODE_PASSWORD_CORRECT},
          * {@link #CODE_PASSWORD_ERROR},
          */
