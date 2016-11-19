@@ -15,6 +15,18 @@ A Light-weight Pattern Lock View for Android
 ![Screenshot](art/circle_lock_view.png)
 ![Screenshot](art/dot_lock_view.png)
 
+## Gradle Dependency
+```groovy
+repositories {
+    ...
+    jcenter()
+}
+
+dependencies {
+    compile 'com.reginald:patternlock:1.0.0'
+}
+````
+
 ## How to use
 ```xml
 <com.reginald.patternlockview.PatternLockView
