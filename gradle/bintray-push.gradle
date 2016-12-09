@@ -74,8 +74,8 @@ install {
 }
 
 bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : project.property('BINTRAY_USER')
-    key = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : project.property('BINTRAY_KEY')
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : ""
+    key = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : ""
 
     configurations = ['archives']
 

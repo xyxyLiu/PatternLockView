@@ -659,7 +659,7 @@ public class PatternLockView extends ViewGroup {
                     }
                     break;
                 case STATE_ERROR:
-                    if (mNodeCorrectSrc != null) {
+                    if (mNodeErrorSrc != null) {
                         setBackgroundDrawable(mNodeErrorSrc);
                     }
                     break;
