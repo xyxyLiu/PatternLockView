@@ -25,30 +25,28 @@ import java.util.List;
 /**
  * PatternLockView support two layout mode:
  * PatternLockView 支持两种布局模式：
- *
+ * <p>
  * 1. SpacingPadding mode:
- *  If lock_spacing is given, PatternLockView use lock_nodeSize, lock_spacing and lock_padding to layout the view.
- *  Detail Rules:
- *  a. Use exactly lock_nodeSize, spacing and lock_padding to layout. If insufficient space, try b.
- *  b. Keep lock_nodeSize, reduce lock_spacing and lock_padding with equal proportion. If insufficient space, try c.
- *  c. Keep lock_spacing and lock_padding, reduce lock_nodeSize. If insufficient space, try d.
- *  d. Apply Identical-Area mode.
- *
- *  如果设置了lock_spacing时，PatternLockView会使用lock_nodeSize, lock_spacing, lock_padding去布局
- *  具体布局规则如下：
- *  a.精确按照lock_nodeSize, lock_spacing, lock_padding去布局进行布局，如果空间不足采用b规则；
- *  b.保持lock_nodeSize大小不变，按比例缩小lock_spacing与lock_padding去布局，如果spacing与padding空间小于0，采用c规则；
- *  c.保持lock_spacing与lock_padding，缩小lock_nodeSize，如果lock_nodeSize小于0，采用d规则；
- *  d.采用Identical-Area mode；
- *
+ * If lock_spacing is given, PatternLockView use lock_nodeSize, lock_spacing and lock_padding to layout the view.
+ * Detail Rules:
+ * a. Use exactly lock_nodeSize, spacing and lock_padding to layout. If insufficient space, try b.
+ * b. Keep lock_nodeSize, reduce lock_spacing and lock_padding with equal proportion. If insufficient space, try c.
+ * c. Keep lock_spacing and lock_padding, reduce lock_nodeSize. If insufficient space, try d.
+ * d. Apply Identical-Area mode.
+ * <p>
+ * 如果设置了lock_spacing时，PatternLockView会使用lock_nodeSize, lock_spacing, lock_padding去布局
+ * 具体布局规则如下：
+ * a.精确按照lock_nodeSize, lock_spacing, lock_padding去布局进行布局，如果空间不足采用b规则；
+ * b.保持lock_nodeSize大小不变，按比例缩小lock_spacing与lock_padding去布局，如果spacing与padding空间小于0，采用c规则；
+ * c.保持lock_spacing与lock_padding，缩小lock_nodeSize，如果lock_nodeSize小于0，采用d规则；
+ * d.采用Identical-Area mode；
+ * <p>
  * 2. Identical-Area mode:
- *  If lock_spacing is NOT given, PatternLockView only use lock_nodeSize to layout the view(lock_spacing and lock_padding are ignored).
- *  It divides the whole area into n * n identical cells, and layout the node in the center of each cell
- *
- *  如果未设置lock_spacing时，PatternLockView将只使用lock_nodeSize，而无视lock_spacing与lock_padding去布局。
- *  其会将空间等分为n * n个空间，并将节点居中放置
- *
-
+ * If lock_spacing is NOT given, PatternLockView only use lock_nodeSize to layout the view(lock_spacing and lock_padding are ignored).
+ * It divides the whole area into n * n identical cells, and layout the node in the center of each cell
+ * <p>
+ * 如果未设置lock_spacing时，PatternLockView将只使用lock_nodeSize，而无视lock_spacing与lock_padding去布局。
+ * 其会将空间等分为n * n个空间，并将节点居中放置
  *
  * @author xyxyLiu
  * @version 1.0
@@ -88,8 +86,11 @@ public class PatternLockView extends ViewGroup {
 
     private float mNodeAreaExpand;
     private int mNodeOnAnim;
-    private int mLineColor;
     private float mLineWidth;
+
+    private int mLineColor;
+    private int mLineCorrectColor;
+    private int mLineErrorColor;
 
     private float mNodeSize;
     // only used in Identical-Area mode, whether to keep each square
@@ -151,6 +152,7 @@ public class PatternLockView extends ViewGroup {
 
     /**
      * time delayed of the lock view resetting after user finish input password
+     *
      * @param timeout timeout
      */
     public void setFinishTimeout(long timeout) {
@@ -161,9 +163,10 @@ public class PatternLockView extends ViewGroup {
 
     /**
      * whether user can start a new password input in the period of FinishTimeout
-     * @see #setFinishTimeout(long)
+     *
      * @param isInterruptable if true, the lock view will be reset when user touch a new node.
      *                        if false, the lock view will be reset only when the finish timeout expires
+     * @see #setFinishTimeout(long)
      */
     public void setFinishInterruptable(boolean isInterruptable) {
         mIsFinishInterruptable = isInterruptable;
@@ -171,6 +174,7 @@ public class PatternLockView extends ViewGroup {
 
     /**
      * whether the nodes in the path of two selected nodes will be automatic linked
+     *
      * @param isEnabled enabled
      */
     public void setAutoLinkEnabled(boolean isEnabled) {
@@ -214,6 +218,8 @@ public class PatternLockView extends ViewGroup {
         mNodeAreaExpand = a.getDimension(R.styleable.PatternLockView_lock_nodeTouchExpand, 0);
         mNodeOnAnim = a.getResourceId(R.styleable.PatternLockView_lock_nodeOnAnim, 0);
         mLineColor = a.getColor(R.styleable.PatternLockView_lock_lineColor, Color.argb(0xb2, 0xff, 0xff, 0xff));
+        mLineCorrectColor = a.getColor(R.styleable.PatternLockView_lock_lineCorrectColor, mLineColor);
+        mLineErrorColor = a.getColor(R.styleable.PatternLockView_lock_lineErrorColor, mLineColor);
         mLineWidth = a.getDimension(R.styleable.PatternLockView_lock_lineWidth, (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()));
         mPadding = a.getDimension(R.styleable.PatternLockView_lock_padding, 0);
@@ -455,14 +461,7 @@ public class PatternLockView extends ViewGroup {
 
                     if (mCallBack != null) {
                         int result = mCallBack.onFinish(new Password(mNodeList));
-                        switch (result) {
-                            case CODE_PASSWORD_CORRECT:
-                                setFinishState(NodeView.STATE_CORRECT);
-                                break;
-                            case CODE_PASSWORD_ERROR:
-                                setFinishState(NodeView.STATE_ERROR);
-                                break;
-                        }
+                        setFinishState(result);
                     }
 
                     currentNode = null;
@@ -475,7 +474,7 @@ public class PatternLockView extends ViewGroup {
         return true;
     }
 
-    private void setupNodes(int size){
+    private void setupNodes(int size) {
         removeAllViews();
         for (int n = 0; n < size * size; n++) {
             NodeView node = new NodeView(getContext(), n);
@@ -483,9 +482,26 @@ public class PatternLockView extends ViewGroup {
         }
     }
 
-    private void setFinishState(int state) {
-        for (NodeView nodeView : mNodeList) {
-            nodeView.setState(state);
+    private void setFinishState(int result) {
+        int nodeState = -1;
+        int lineColor = mLineColor;
+
+        if (result == CODE_PASSWORD_CORRECT) {
+            nodeState = NodeView.STATE_CORRECT;
+            lineColor = mLineCorrectColor;
+        } else if (result == CODE_PASSWORD_ERROR) {
+            nodeState = NodeView.STATE_ERROR;
+            lineColor = mLineErrorColor;
+        }
+
+        if (nodeState >= 0) {
+            for (NodeView nodeView : mNodeList) {
+                nodeView.setState(nodeState);
+            }
+        }
+
+        if (lineColor != mLineColor) {
+            mPaint.setColor(lineColor);
         }
     }
 
@@ -499,6 +515,7 @@ public class PatternLockView extends ViewGroup {
     /**
      * auto link the nodes between first and second
      * 检测两个节点间的中间检点是否未连接，否则按顺序连接。
+     *
      * @param first
      * @param second
      */
@@ -594,10 +611,10 @@ public class PatternLockView extends ViewGroup {
     public interface CallBack {
         /**
          * @param password password
-         * @see com.reginald.patternlockview.PatternLockView.Password
          * @return return value 解锁结果返回值：
          * {@link #CODE_PASSWORD_CORRECT},
          * {@link #CODE_PASSWORD_ERROR},
+         * @see com.reginald.patternlockview.PatternLockView.Password
          */
         int onFinish(Password password);
     }
@@ -701,11 +718,11 @@ public class PatternLockView extends ViewGroup {
         }
     }
 
-    public static class Password{
+    public static class Password {
         public final List<Integer> list;
         public final String string;
 
-        public Password(List<NodeView> nodeViewList){
+        public Password(List<NodeView> nodeViewList) {
             // build password id list
             list = new ArrayList<>();
             for (NodeView node : nodeViewList) {

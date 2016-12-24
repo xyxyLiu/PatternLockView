@@ -54,15 +54,17 @@ properties:
 |     attr    	|  required/optional(default value)  	|                         meaning                         	|
 |:-----------:	|:---------:	|:----------------------------------------------------:	|
 |  lock_nodeSize  	|   required    | the size of the node  	|
+|  lock_nodeSrc  	| required       | the resource id of the node 	|
+|  lock_spacing  	| if given, SpacingPadding Mode is applied,otherwise, Identical-Area Mode is applied       | the spacing between adjacent nodes 	|
 |   lock_size   	|     optional, default is 3     	|         n, where it's an n * n lock view.        	|
 | lock_enableVibrate 	| optional, default is false 	|          enable vibration when a node is linked          	|
 | lock_vibrateTime      | optional, default is 20ms 	|          time the vibration lasting                     	|
 |   lock_lineWidth 	|     optional, default is 5dp     	|         the width of the link line        	|
 |   lock_lineColor  	|     optional, default is #FFFFFF     	|         the color of the link line         	|
-|  lock_spacing  	| if given, SpacingPadding Mode is applied,otherwise, Identical-Area Mode is applied       | the spacing between adjacent nodes 	|
+|   lock_lineCorrectColor  	|     optional, default is lock_lineColor     	|         the color of the link line when the password is correct        	|
+|   lock_lineErrorColor  	|     optional, default is lock_lineColor     	|         the color of the link line when the password is error             |
 |  lock_padding  	| optional, default is 0       | the padding of the lockview 	|
 |  lock_nodeTouchExpand  	| optional, default is 0       | the expanded area of the node which receive touch action. 	|
-|  lock_nodeSrc  	| required       | the resource id of the node 	|
 |  lock_nodeHighlightSrc  	| optional, default is null       | the resource id of the node when it's in highlighted state, e.g. node is linked. 	|
 |  lock_nodeCorrectSrc  	| optional, default is null       | the resource id of the node when it's in correct state, e.g. password correct. 	|
 |  lock_nodeErrorSrc  	| optional, default is null       | the resource id of the node when it's in error state, e.g. password error. 	|

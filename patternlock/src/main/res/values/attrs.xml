@@ -13,6 +13,8 @@
         <attr name="lock_nodeCorrectSrc" format="color|reference" />
         <attr name="lock_nodeErrorSrc" format="color|reference" />
         <attr name="lock_lineColor" format="color" />
+        <attr name="lock_lineCorrectColor" format="color" />
+        <attr name="lock_lineErrorColor" format="color" />
         <attr name="lock_lineWidth" format="dimension" />
         <attr name="lock_nodeTouchExpand" format="dimension" />
         <attr name="lock_autoLink" format="boolean" />
