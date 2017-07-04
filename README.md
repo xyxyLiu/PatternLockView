@@ -5,6 +5,7 @@ A Light-weight Pattern Lock View for Android
 * light weight and easy to use
 * support n * n Pattern
 * two layout mode supported: Identical-Area mode & SpacingPadding mode.
+* support pattern invisible
 * support vibrate
 * support auto link between two nodes
 * Support `API LEVEL >= 8`
