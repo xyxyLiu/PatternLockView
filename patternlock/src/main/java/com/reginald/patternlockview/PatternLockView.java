@@ -105,6 +105,8 @@ public class PatternLockView extends ViewGroup {
     private boolean mEnableVibrate;
     private int mVibrateTime;
 
+    private boolean mIsPatternVisible = true;
+
     private Paint mPaint;
 
     private CallBack mCallBack;
@@ -148,6 +150,15 @@ public class PatternLockView extends ViewGroup {
 
     public void setTouchEnabled(boolean isEnabled) {
         mIsTouchEnabled = isEnabled;
+    }
+
+    public boolean isPatternVisible() {
+        return mIsPatternVisible;
+    }
+
+    public void setPatternVisible(boolean isVisible) {
+        mIsPatternVisible = isVisible;
+        invalidate();
     }
 
     /**
@@ -579,10 +590,16 @@ public class PatternLockView extends ViewGroup {
         for (int i = 0; i < mNodeList.size() - 1; i++) {
             NodeView first = mNodeList.get(i);
             NodeView second = mNodeList.get(i + 1);
-            canvas.drawLine(first.getCenterX(), first.getCenterY(), second.getCenterX(), second.getCenterY(), mPaint);
+            drawPatternLine(canvas, first.getCenterX(), first.getCenterY(), second.getCenterX(), second.getCenterY());
         }
         if (currentNode != null) {
-            canvas.drawLine(currentNode.getCenterX(), currentNode.getCenterY(), mPositionX, mPositionY, mPaint);
+            drawPatternLine(canvas, currentNode.getCenterX(), currentNode.getCenterY(), mPositionX, mPositionY);
+        }
+    }
+
+    private void drawPatternLine(Canvas canvas, float startX, float startY, float endX, float endY) {
+        if (mIsPatternVisible) {
+            canvas.drawLine(startX, startY, endX, endY, mPaint);
         }
     }
 

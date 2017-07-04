@@ -66,6 +66,16 @@
         />
 
     <Button
+        android:id="@+id/pattern_visible_but"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"
+        />
+
+    <Button
         android:id="@+id/switch_but"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

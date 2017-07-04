@@ -13,17 +13,19 @@ public class DemoActivity extends Activity {
 
     private static final String TAG = "DemoActivity";
 
-    PatternLockView mCurLockView;
+    private PatternLockView mCurLockView;
 
-    PatternLockView mCircleLockView;
+    private PatternLockView mCircleLockView;
 
-    PatternLockView mDotLockView;
+    private PatternLockView mDotLockView;
 
-    TextView mPasswordTextView;
+    private TextView mPasswordTextView;
 
-    Button mSwitchButton;
+    private Button mSwitchButton;
 
-    String mPassword = "";
+    private Button mPatternVisibleButton;
+
+    private String mPassword = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,20 @@ public class DemoActivity extends Activity {
         mDotLockView = (PatternLockView) findViewById(R.id.lock_view_dot);
         mCurLockView = mDotLockView;
         mPasswordTextView = (TextView) findViewById(R.id.password_text);
+        mPatternVisibleButton = (Button) findViewById(R.id.pattern_visible_but);
+        mPatternVisibleButton.setText("pattern visibility: visible");
+        mPatternVisibleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCurLockView.isPatternVisible()) {
+                    mPatternVisibleButton.setText("pattern visibility: invisible");
+                    mCurLockView.setPatternVisible(false);
+                } else {
+                    mCurLockView.setPatternVisible(true);
+                    mPatternVisibleButton.setText("pattern visibility: visible");
+                }
+            }
+        });
         mSwitchButton = (Button) findViewById(R.id.switch_but);
         mSwitchButton.setOnClickListener(new View.OnClickListener() {
             @Override
