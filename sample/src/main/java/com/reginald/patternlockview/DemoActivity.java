@@ -83,7 +83,7 @@ public class DemoActivity extends Activity {
                     mCurLockView.stopPasswordAnim();
                 } else {
                     mPatternShowAnimButton.setText("stop password anim");
-                    mCurLockView.showPasswordWithAnim(mPassword.list, -1,
+                    mCurLockView.showPasswordWithAnim(mPassword.list, -1, 400l,
                             new PatternLockView.onAnimFinishListener() {
                                 @Override
                                 public void onFinish(boolean isStopped) {

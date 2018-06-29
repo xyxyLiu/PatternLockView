@@ -69,6 +69,8 @@ public class PatternLockView extends ViewGroup {
     private static final String TAG = "PatternLockView";
     private static final boolean DEBUG = BuildConfig.DEBUG_LOG;
 
+    private static final long DEFAULT_REPLAY_INTERVAL = 500L;
+
     // attributes that can be configured with code (non-persistent)
     private boolean mIsTouchEnabled = true;
     private long mFinishTimeout = 1000;
@@ -239,7 +241,7 @@ public class PatternLockView extends ViewGroup {
         for (int i = 0; i < password.size(); ++i) {
             NodeView curNode = (PatternLockView.NodeView) getChildAt(password.get(i));
             curNode.setState(NodeView.STATE_HIGHLIGHT, false);
-            addNodeToList(curNode);
+            addNodeToList(curNode, false);
         }
         invalidate();
     }
@@ -249,7 +251,7 @@ public class PatternLockView extends ViewGroup {
      * @param password password
      */
     public void showPasswordWithAnim(List<Integer> password) {
-        showPasswordWithAnim(password, -1, null);
+        showPasswordWithAnim(password, -1, DEFAULT_REPLAY_INTERVAL, null);
     }
 
     /**
@@ -258,16 +260,28 @@ public class PatternLockView extends ViewGroup {
      * @param repeatTime n, -1 means infinitely
      */
     public void showPasswordWithAnim(List<Integer> password, int repeatTime) {
-        showPasswordWithAnim(password, repeatTime, null);
+        showPasswordWithAnim(password, repeatTime, DEFAULT_REPLAY_INTERVAL, null);
+    }
+
+    /**
+     * show pattern animation n times with a giving password
+     * @param password password
+     * @param repeatTime n, -1 means infinitely
+     * @param interval time interval in node highlight
+     */
+    public void showPasswordWithAnim(List<Integer> password, int repeatTime, long interval) {
+        showPasswordWithAnim(password, repeatTime, interval, null);
     }
 
     /**
      * show pattern animation n times with a giving password, and listen finish callback
      * @param password password
      * @param repeatTime n, -1 means infinitely
+     * @param interval time interval in node highlight
      * @param listenner finish listener
+     *
      */
-    public void showPasswordWithAnim(List<Integer> password, int repeatTime,
+    public void showPasswordWithAnim(List<Integer> password, int repeatTime, long interval,
                                      onAnimFinishListener listenner) {
         ensureValidPassword(password);
         stopPasswordAnim();
@@ -276,6 +290,7 @@ public class PatternLockView extends ViewGroup {
         mShowAnimThread = new ShowAnimThread(this, password);
         mShowAnimThread.setRepeatTime(repeatTime)
                 .setOnFinishListenner(listenner)
+                .setInterval(interval)
                 .start();
     }
 
@@ -545,7 +560,7 @@ public class PatternLockView extends ViewGroup {
                     if (nodeAt != null) {
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
-                        addNodeToList(currentNode);
+                        addNodeToList(currentNode, true);
                         tryVibrate();
                         invalidate();
                     }
@@ -556,7 +571,7 @@ public class PatternLockView extends ViewGroup {
                         }
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
-                        addNodeToList(currentNode);
+                        addNodeToList(currentNode, true);
                         tryVibrate();
                     }
                     invalidate();
@@ -626,9 +641,9 @@ public class PatternLockView extends ViewGroup {
         }
     }
 
-    private void addNodeToList(NodeView nodeView) {
+    private void addNodeToList(NodeView nodeView, boolean triggerTouch) {
         mNodeList.add(nodeView);
-        if (mOnNodeTouchListener != null) {
+        if (triggerTouch && mOnNodeTouchListener != null) {
             mOnNodeTouchListener.onNodeTouched(nodeView.getNodeId());
         }
     }
@@ -691,7 +706,7 @@ public class PatternLockView extends ViewGroup {
         if (mNodeList.contains(mid))
             return;
         mid.setState(NodeView.STATE_HIGHLIGHT);
-        addNodeToList(mid);
+        addNodeToList(mid, true);
     }
 
     @Override
@@ -956,11 +971,14 @@ public class PatternLockView extends ViewGroup {
                             view.getChildAt(mPassword.get(i));
                     view.post(new Runnable() {
                         public void run() {
+                            if (mStopping) {
+                                return;
+                            }
                             if (isInitalNode) {
                                 view.reset();
                             }
                             curNode.setState(NodeView.STATE_HIGHLIGHT);
-                            view.addNodeToList(curNode);
+                            view.addNodeToList(curNode, false);
                             view.invalidate();
                         }
                     });
