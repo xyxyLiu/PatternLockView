@@ -8,9 +8,10 @@ A Light-weight Pattern Lock View for Android
 * support pattern invisible
 * support vibrate
 * support auto link between two nodes
-* Support `API LEVEL >= 8`
+* support password replay (added in v2.0.0)
+* support `API LEVEL >= 8`
 
-[Download Demo APK](https://github.com/xyxyLiu/PatternLockView/releases/download/1.1/PatternLockView-Demo-1.1.apk)
+[Download Demo APK](https://github.com/xyxyLiu/PatternLockView/releases/download/2.0/PatternLockView-Demo-2.0.apk)
 
 ## ScreenShot
 ![Screenshot](art/circle_lock_view.png)
@@ -24,10 +25,20 @@ repositories {
 }
 
 dependencies {
-    compile 'com.reginald:patternlock:1.1.0'
+    compile 'com.reginald:patternlock:2.0.0'
 }
 ````
-[Change Log](https://github.com/xyxyLiu/PatternLockView/releases)
+#### Change log
+###### v2.0.0
+- add password replay feature
+- fix autolink bugs 
+
+###### v1.1.0
+- fix bug #1 
+- added lock_lineCorrectColor and lock_lineErrorColor attributes
+
+###### v1.0.0
+- initial release
 
 ## How to use
 ```xml
@@ -112,6 +123,14 @@ mLockView.setOnNodeTouchListener(new PatternLockView.OnNodeTouchListener() {
         });
 ```
 
+## Password Replay
+```java
+    // show password pattern
+    mLockView.showPassword(myPassword);
+    
+    // show password pattern with animation
+    mLockView.showPasswordWithAnim(myPassword);
+```
 
 ## License
 
