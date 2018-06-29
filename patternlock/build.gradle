@@ -18,10 +18,43 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-apply from: '../gradle/bintray-push.gradle'
+
+// bintray upload
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'PatternLockView'   // Has to be same as your library module name
+
+    publishedGroupId = 'com.reginald'
+    libraryName = 'PatternLockView'
+    artifact = 'patternlock'     // Has to be same as your library module name
+
+    libraryDescription = 'Android pattern lock view'
+
+    // Your github repo link
+    siteUrl = 'https://github.com/xyxyLiu/PatternLockView'
+    gitUrl = 'git@github.com:xyxyLiu/PatternLockView.git'
+    githubRepository= 'xyxyLiu/PatternLockView'
+
+    libraryVersion = '2.0.0'
+
+    developerId = 'xyxyLiu'
+    developerName = 'xyxyLiu'
+    developerEmail = 'tonyreginald@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+apply from: 'https://raw.githubusercontent.com/nisrulz/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/nisrulz/JCenter/master/bintrayv1.gradle'

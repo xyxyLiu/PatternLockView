@@ -1,7 +1,12 @@
 package com.reginald.patternlockview;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -10,6 +15,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -18,9 +24,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * PatternLockView support two layout mode:
@@ -83,6 +86,7 @@ public class PatternLockView extends ViewGroup {
     private Drawable mNodeErrorSrc;
 
     private int mSize;
+    private int mTotalSize;
 
     private float mNodeAreaExpand;
     private int mNodeOnAnim;
@@ -112,6 +116,8 @@ public class PatternLockView extends ViewGroup {
     private CallBack mCallBack;
 
     private OnNodeTouchListener mOnNodeTouchListener;
+
+    private ShowAnimThread mShowAnimThread;
 
     private Runnable mFinishAction = new Runnable() {
         @Override
@@ -194,13 +200,18 @@ public class PatternLockView extends ViewGroup {
 
     public void setSize(int size) {
         mSize = size;
-        setupNodes(size);
+        mTotalSize = size * size;
+        setupNodes(mTotalSize);
     }
 
     /**
      * reset the view, reset nodes states and clear all lines.
      */
     public void reset() {
+        if (mFinishAction != null) {
+            removeCallbacks(mFinishAction);
+        }
+
         mNodeList.clear();
         currentNode = null;
 
@@ -217,10 +228,96 @@ public class PatternLockView extends ViewGroup {
         invalidate();
     }
 
+    /**
+     * show pattern with a giving password
+     * @param password password
+     */
+    public void showPassword(List<Integer> password) {
+        ensureValidPassword(password);
+        stopPasswordAnim();
+        reset();
+        for (int i = 0; i < password.size(); ++i) {
+            NodeView curNode = (PatternLockView.NodeView) getChildAt(password.get(i));
+            curNode.setState(NodeView.STATE_HIGHLIGHT, false);
+            addNodeToList(curNode);
+        }
+        invalidate();
+    }
+
+    /**
+     * show pattern animation repeatedly with a giving password
+     * @param password password
+     */
+    public void showPasswordWithAnim(List<Integer> password) {
+        showPasswordWithAnim(password, -1, null);
+    }
+
+    /**
+     * show pattern animation n times with a giving password
+     * @param password password
+     * @param repeatTime n, -1 means infinitely
+     */
+    public void showPasswordWithAnim(List<Integer> password, int repeatTime) {
+        showPasswordWithAnim(password, repeatTime, null);
+    }
+
+    /**
+     * show pattern animation n times with a giving password, and listen finish callback
+     * @param password password
+     * @param repeatTime n, -1 means infinitely
+     * @param listenner finish listener
+     */
+    public void showPasswordWithAnim(List<Integer> password, int repeatTime,
+                                     onAnimFinishListener listenner) {
+        ensureValidPassword(password);
+        stopPasswordAnim();
+        reset();
+        setTouchEnabled(false);
+        mShowAnimThread = new ShowAnimThread(this, password);
+        mShowAnimThread.setRepeatTime(repeatTime)
+                .setOnFinishListenner(listenner)
+                .start();
+    }
+
+    /**
+     * check if pattern animation is running
+     * @return running
+     */
+    public boolean isPasswordAnim() {
+        return mShowAnimThread != null ? mShowAnimThread.isRunning() : false;
+    }
+
+    /**
+     * stop pattern animation.
+     * call it in {@link Activity#onDestroy()} to avoid memory leaks
+     */
+    public void stopPasswordAnim() {
+        if (mShowAnimThread != null) {
+            mShowAnimThread.end();
+            mShowAnimThread = null;
+        }
+    }
+
+    private void ensureValidPassword(List<Integer> password) {
+        if (password == null) {
+            throw new IllegalArgumentException("password is null!");
+        }
+
+        for (Integer id : password) {
+            if (id == null) {
+                throw new IllegalArgumentException("password has null value!");
+            }
+            if (id < 0 || id >= mTotalSize) {
+                throw new IllegalArgumentException(String.format("password value is invalid: %d, valid range is "
+                        + "[%d, %d]", id, 0, mTotalSize - 1));
+            }
+        }
+    }
+
     private void initFromAttributes(Context context, AttributeSet attrs, int defStyleAttr) {
         final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.PatternLockView, defStyleAttr, 0);
 
-        mSize = a.getInt(R.styleable.PatternLockView_lock_size, 3);
+        int size = a.getInt(R.styleable.PatternLockView_lock_size, 3);
         mNodeSrc = a.getDrawable(R.styleable.PatternLockView_lock_nodeSrc);
         mNodeHighlightSrc = a.getDrawable(R.styleable.PatternLockView_lock_nodeHighlightSrc);
         mNodeCorrectSrc = a.getDrawable(R.styleable.PatternLockView_lock_nodeCorrectSrc);
@@ -256,7 +353,7 @@ public class PatternLockView extends ViewGroup {
         mPaint.setColor(mLineColor);
         mPaint.setAntiAlias(true);
 
-        setupNodes(mSize);
+        setSize(size);
 
         setWillNotDraw(false);
     }
@@ -397,7 +494,7 @@ public class PatternLockView extends ViewGroup {
                         nodeSize, areaWidth, areaHeight, widthPadding, heightPadding));
             }
 
-            for (int n = 0; n < mSize * mSize; n++) {
+            for (int n = 0; n < mTotalSize; n++) {
                 NodeView node = (NodeView) getChildAt(n);
                 int row = n / mSize;
                 int col = n % mSize;
@@ -414,7 +511,7 @@ public class PatternLockView extends ViewGroup {
                 Log.v(TAG, String.format("nodeSize = %f, widthPadding = %f, heightPadding = %f",
                         nodeSize, widthPadding, heightPadding));
             }
-            for (int n = 0; n < mSize * mSize; n++) {
+            for (int n = 0; n < mTotalSize; n++) {
                 NodeView node = (NodeView) getChildAt(n);
                 int row = n / mSize;
                 int col = n % mSize;
@@ -449,6 +546,7 @@ public class PatternLockView extends ViewGroup {
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
                         addNodeToList(currentNode);
+                        tryVibrate();
                         invalidate();
                     }
                 } else {
@@ -459,6 +557,7 @@ public class PatternLockView extends ViewGroup {
                         currentNode = nodeAt;
                         currentNode.setState(NodeView.STATE_HIGHLIGHT);
                         addNodeToList(currentNode);
+                        tryVibrate();
                     }
                     invalidate();
                 }
@@ -471,7 +570,7 @@ public class PatternLockView extends ViewGroup {
                     }
 
                     if (mCallBack != null) {
-                        int result = mCallBack.onFinish(new Password(mNodeList));
+                        int result = mCallBack.onFinish(Password.buildPassword(mNodeList));
                         setFinishState(result);
                     }
 
@@ -485,9 +584,20 @@ public class PatternLockView extends ViewGroup {
         return true;
     }
 
-    private void setupNodes(int size) {
+    @SuppressLint("MissingPermission")
+    private void tryVibrate() {
+        if (mEnableVibrate) {
+            try {
+                mVibrator.vibrate(mVibrateTime);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void setupNodes(int totalSize) {
         removeAllViews();
-        for (int n = 0; n < size * size; n++) {
+        for (int n = 0; n < totalSize; n++) {
             NodeView node = new NodeView(getContext(), n);
             addView(node);
         }
@@ -531,11 +641,11 @@ public class PatternLockView extends ViewGroup {
      * @param second
      */
     private void autoLinkNode(NodeView first, NodeView second) {
-        if (DEBUG) {
-            Log.d(TAG, String.format("autoLinkNode(%s, %s)", first, second));
-        }
         int xDiff = second.getColumn() - first.getColumn();
         int yDiff = second.getRow() - first.getRow();
+        if (DEBUG) {
+            Log.d(TAG, String.format("autoLinkNode(%s, %s), xDiff = %d, yDiff = %d", first, second, xDiff, yDiff));
+        }
         if (yDiff == 0 && xDiff == 0) {
             return;
         } else if (yDiff == 0) {
@@ -568,7 +678,6 @@ public class PatternLockView extends ViewGroup {
                 }
                 if (Math.abs(yDelta - yDeltaRounded) < 1e-6) {
                     tryAppendMidNode(first.getRow() + yDeltaRounded, first.getColumn() + xDelta);
-                    break;
                 }
             }
         }
@@ -665,9 +774,14 @@ public class PatternLockView extends ViewGroup {
         }
 
         public void setState(int state) {
+            setState(state, true);
+        }
 
-            if (mState == state)
+        public void setState(int state, boolean anim) {
+
+            if (mState == state) {
                 return;
+            }
 
             switch (state) {
 
@@ -679,12 +793,8 @@ public class PatternLockView extends ViewGroup {
                     if (mNodeHighlightSrc != null) {
                         setBackgroundDrawable(mNodeHighlightSrc);
                     }
-                    if (mNodeOnAnim != 0) {
+                    if (anim && mNodeOnAnim != 0) {
                         startAnimation(AnimationUtils.loadAnimation(getContext(), mNodeOnAnim));
-                    }
-
-                    if (mEnableVibrate) {
-                        mVibrator.vibrate(mVibrateTime);
                     }
                     break;
                 case STATE_CORRECT:
@@ -739,21 +849,33 @@ public class PatternLockView extends ViewGroup {
         public final List<Integer> list;
         public final String string;
 
-        public Password(List<NodeView> nodeViewList) {
+        static Password buildPassword(List<NodeView> nodeViewList) {
+            List<Integer> idList = new ArrayList<>();
+            for (NodeView nodeView : nodeViewList) {
+                Integer id = nodeView.getNodeId();
+                idList.add(id);
+            }
+            return new Password(idList);
+        }
+
+        public Password(List<Integer> idList) {
             // build password id list
             list = new ArrayList<>();
-            for (NodeView node : nodeViewList) {
-                list.add(node.getNodeId());
+            for (Integer id : idList) {
+                if (id == null) {
+                    throw new IllegalStateException("id CAN NOT be null!");
+                }
+                list.add(id);
             }
 
             // build password string
-            string = buildPasswordString(nodeViewList);
+            string = buildPasswordString(idList);
         }
 
-        protected String buildPasswordString(List<NodeView> nodeViewList) {
+        protected String buildPasswordString(List<Integer> nodeIdList) {
             StringBuilder passwordBuilder = new StringBuilder("[");
-            for (int i = 0; i < nodeViewList.size(); i++) {
-                int id = nodeViewList.get(i).getNodeId();
+            for (int i = 0; i < nodeIdList.size(); i++) {
+                int id = nodeIdList.get(i);
                 if (i != 0) {
                     passwordBuilder.append("-");
                 }
@@ -763,6 +885,126 @@ public class PatternLockView extends ViewGroup {
             passwordBuilder.append("]");
             return passwordBuilder.toString();
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+
+            if (obj instanceof Password) {
+                Password anotherPwd = (Password) obj;
+                return string.equals(anotherPwd.string);
+            }
+
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return string.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "Password{ " + string + " }";
+        }
+    }
+
+    private static class ShowAnimThread extends Thread {
+        private WeakReference<PatternLockView> mViewRef;
+        private List<Integer> mPassword;
+        private long mNodeTimeInterval = 500L;
+        private int mRepeatTime = 1;
+        private volatile boolean mWorking = false;
+        private volatile boolean mStopping = false;
+        private onAnimFinishListener mListener;
+
+        public ShowAnimThread(PatternLockView lockView, List<Integer> password) {
+            this.mViewRef = new WeakReference<PatternLockView>(lockView);
+            this.mPassword = password;
+        }
+
+        public ShowAnimThread setRepeatTime(int repeatTime) {
+            this.mRepeatTime = repeatTime;
+            return this;
+        }
+
+        public ShowAnimThread setInterval(long timeInterval) {
+            this.mNodeTimeInterval = timeInterval;
+            return this;
+        }
+
+        public ShowAnimThread setOnFinishListenner(onAnimFinishListener listener) {
+            this.mListener = listener;
+            return this;
+        }
+
+        public void run() {
+            mWorking = true;
+            int repeatTime = mRepeatTime;
+
+            while (repeatTime < 0 || repeatTime-- > 0) {
+                final PatternLockView view = mViewRef.get();
+                if (view == null) {
+                    break;
+                }
+
+                for (int i = 0; i < mPassword.size() && !mStopping; ++i) {
+                    final boolean isInitalNode = i == 0;
+                    final PatternLockView.NodeView curNode = (PatternLockView.NodeView)
+                            view.getChildAt(mPassword.get(i));
+                    view.post(new Runnable() {
+                        public void run() {
+                            if (isInitalNode) {
+                                view.reset();
+                            }
+                            curNode.setState(NodeView.STATE_HIGHLIGHT);
+                            view.addNodeToList(curNode);
+                            view.invalidate();
+                        }
+                    });
+                    SystemClock.sleep(this.mNodeTimeInterval);
+                }
+
+                if (mStopping) {
+                    break;
+                }
+            }
+
+            final PatternLockView view = mViewRef.get();
+            if (view != null) {
+                view.post(new Runnable() {
+                    public void run() {
+                        view.setTouchEnabled(true);
+                        if (!mStopping) {
+                            view.showPassword(mPassword);
+                        }
+                        if (mListener != null) {
+                            mListener.onFinish(mStopping);
+                        }
+                    }
+                });
+            }
+
+            mWorking = false;
+        }
+
+        public boolean isRunning() {
+            return mWorking;
+        }
+
+        public void end() {
+            mStopping = true;
+            final PatternLockView view = mViewRef.get();
+            if (view != null) {
+                view.reset();
+            }
+        }
+    }
+
+    public interface onAnimFinishListener {
+        void onFinish(boolean isStopped);
     }
 
 }

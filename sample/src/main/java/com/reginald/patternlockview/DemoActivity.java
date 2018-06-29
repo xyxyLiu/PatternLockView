@@ -1,5 +1,9 @@
 package com.reginald.patternlockview;
 
+import java.util.Arrays;
+
+import com.reginald.patternlockview.demo.R;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,11 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.reginald.patternlockview.demo.R;
-
 public class DemoActivity extends Activity {
 
     private static final String TAG = "DemoActivity";
+    private static final PatternLockView.Password sDefaultPassword =
+            new PatternLockView.Password(Arrays.asList(0, 1, 2, 3, 4, 5));
 
     private PatternLockView mCurLockView;
 
@@ -25,7 +29,11 @@ public class DemoActivity extends Activity {
 
     private Button mPatternVisibleButton;
 
-    private String mPassword = "";
+    private Button mPatternShowButton;
+
+    private Button mPatternShowAnimButton;
+
+    private PatternLockView.Password mPassword = sDefaultPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +65,43 @@ public class DemoActivity extends Activity {
             }
         });
         mPasswordTextView.setText("please enter your password!");
+
+        mPatternShowButton = (Button) findViewById(R.id.switch_show);
+        mPatternShowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurLockView.showPassword(mPassword.list);
+                mPasswordTextView.setText("show password: " + mPassword.string);
+            }
+        });
+
+        mPatternShowAnimButton = (Button) findViewById(R.id.switch_show_anim);
+        mPatternShowAnimButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCurLockView.isPasswordAnim()) {
+                    mCurLockView.stopPasswordAnim();
+                } else {
+                    mPatternShowAnimButton.setText("stop password anim");
+                    mCurLockView.showPasswordWithAnim(mPassword.list, -1,
+                            new PatternLockView.onAnimFinishListener() {
+                                @Override
+                                public void onFinish(boolean isStopped) {
+                                    mPatternShowAnimButton.setText("start password anim");
+                                }
+                            });
+                    mPasswordTextView.setText("show password animation: " + mPassword.string);
+                }
+            }
+        });
+
         switchLockViews();
     }
 
     private void switchLockViews() {
+        mPassword = sDefaultPassword;
+        mCurLockView.stopPasswordAnim();
+
         mCurLockView = mCurLockView == mCircleLockView ? mDotLockView : mCircleLockView;
         mCurLockView.setVisibility(View.VISIBLE);
 
@@ -102,10 +143,10 @@ public class DemoActivity extends Activity {
                     mPasswordTextView.setText("please enter your password!");
                 }
 
-                if (mPassword.equals(password.string)) {
+                if (mPassword.equals(password)) {
                     return PatternLockView.CODE_PASSWORD_CORRECT;
                 } else {
-                    mPassword = password.string;
+                    mPassword = password;
                     return PatternLockView.CODE_PASSWORD_ERROR;
                 }
             }
@@ -117,6 +158,12 @@ public class DemoActivity extends Activity {
                 Log.d(TAG, "node " + NodeId + " has touched!");
             }
         });
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // DO NOT FORGET TO CALL IT!
+        mCurLockView.stopPasswordAnim();
     }
 }
